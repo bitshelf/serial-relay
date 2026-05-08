@@ -1,15 +1,24 @@
 # Makefile for serial-relay
-#   make          — build release binary
-#   make deb      — build .deb package
-#   make install  — install to /usr/local/bin
-#   make clean    — remove build artifacts
+#   make              — build dynamic binary
+#   make static       — build static binary
+#   make deb          — build dynamic .deb
+#   make static-deb   — build static .deb
+#   make install      — install to /usr/local/bin
+#   make clean        — remove build artifacts
 
-.PHONY: all build deb install uninstall clean
+.PHONY: all build static deb static-deb install uninstall clean
 
 all: build
 
 build:
 	cargo build --release
+
+static:
+	cargo build --release --target aarch64-unknown-linux-musl
+	@echo "--- static binary ---"
+	file target/aarch64-unknown-linux-musl/release/serial
+	@echo "--- ldd check ---"
+	-ldd target/aarch64-unknown-linux-musl/release/serial 2>&1
 
 deb: build
 	@PACKAGE_ROOT="deb-pkg/serial-relay_0.1.0_arm64"; \

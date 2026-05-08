@@ -1,4 +1,5 @@
-# Cross-compilation linker override (only used on non-native targets).
-# When building natively on ARM64, the system linker is used.
-[target.aarch64-unknown-linux-gnu]
-# linker = "rust-lld"  # Uncomment for x86->ARM64 cross-compilation
+# Cross-compilation / static linking configuration.
+# For static linking, use:  ./build-deb.sh static  or  make static
+#
+# Note: crt-static must be passed via CARGO_BUILD_RUSTFLAGS (not .cargo/config)
+# to avoid breaking proc-macro crates during native compilation.
