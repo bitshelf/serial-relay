@@ -1,0 +1,8 @@
+# Build artifacts
+/target/
+/*.deb
+/deb-pkg/
+
+# Editor
+*~
+*.swp
