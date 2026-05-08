@@ -7,7 +7,7 @@ repository = ""
 license = "MIT"
 
 [[bin]]
-name = "serial"
+name = "serial_relay"
 path = "src/main.rs"
 
 # Serial port baud rate — change here to match your relay module
@@ -16,7 +16,7 @@ baud_rate = 9600
 
 [dependencies]
 clap = { version = "4.5", features = ["derive"] }
-serialport = "4.7"
+serialport = "4.9"
 
 [build-dependencies]
-toml = "0.8"
+toml = "1.1"

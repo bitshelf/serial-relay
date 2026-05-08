@@ -90,6 +90,34 @@ cargo install cross
 cross build --release --target aarch64-unknown-linux-gnu
 ```
 
+### Static Build (musl, no dynamic dependencies)
+
+Produces a fully self-contained binary with no external library dependencies:
+
+```bash
+# Install musl target (use a mirror if download is slow, see below)
+rustup target add aarch64-unknown-linux-musl
+
+# Build static binary
+make static
+# or
+cargo build --release --target aarch64-unknown-linux-musl
+
+# Verify — should say "not a dynamic executable"
+ldd target/aarch64-unknown-linux-musl/release/serial
+```
+
+#### Rustup mirror (for slow downloads in mainland China)
+
+```bash
+# Set mirror before rustup commands
+export RUSTUP_DIST_SERVER=https://mirrors.tuna.tsinghua.edu.cn/rustup
+export RUSTUP_UPDATE_ROOT=https://mirrors.tuna.tsinghua.edu.cn/rustup/rustup
+
+# Then install targets normally
+rustup target add aarch64-unknown-linux-musl
+```
+
 ### Configuring Baud Rate
 
 Edit `[package.metadata]` in `Cargo.toml`:
@@ -143,11 +171,16 @@ cd /tmp
 tar xzf serial-relay-src.tar.gz -C serial-relay
 cd serial-relay
 
-# Build and create .deb
+# Build dynamic .deb
 ./build-deb.sh deb
+
+# Or build static .deb (no runtime deps)
+./build-deb.sh static-deb
 
 # Install (requires root)
 sudo dpkg -i serial-relay_0.1.0_arm64.deb
+# Or for static version:
+sudo dpkg -i serial-relay-static_0.1.0_arm64.deb
 
 # Or install directly from build
 ./build-deb.sh install
@@ -156,10 +189,12 @@ sudo dpkg -i serial-relay_0.1.0_arm64.deb
 ### Package commands
 
 ```bash
-./build-deb.sh deb       # Build binary and create .deb
-./build-deb.sh install   # Build and install to /usr/local/bin
-./build-deb.sh uninstall # Remove installed binary
-./build-deb.sh clean     # Remove build artifacts
+./build-deb.sh deb        # Build dynamic binary and create .deb
+./build-deb.sh static     # Build static binary (musl)
+./build-deb.sh static-deb # Build static binary and create .deb
+./build-deb.sh install    # Build and install to /usr/local/bin
+./build-deb.sh uninstall  # Remove installed binary
+./build-deb.sh clean      # Remove build artifacts
 ```
 
 ## Debugging
@@ -216,17 +251,20 @@ newgrp dialout
 ```
 serial-relay/
 ├── Cargo.toml            # Package config + baud rate setting
+├── Cargo.lock            # Locked dependency versions
 ├── build.rs              # Reads baud_rate from Cargo.toml at compile time
 ├── src/
 │   └── main.rs           # CLI and serial control logic
+├── .cargo/
+│   └── config.toml       # Target-specific rustflags / linker config
 ├── debian/               # Debian packaging (dpkg-buildpackage)
 │   ├── control
 │   ├── rules
 │   ├── changelog
 │   ├── compat
 │   └── install
-├── build-deb.sh          # Standalone build+deb script (no debhelper needed)
-├── Makefile              # Alternative build targets
+├── build-deb.sh           # Standalone build+deb script (no debhelper needed)
+├── Makefile               # Alternative build targets (make/make static/make deb)
 └── README.md
 ```
 
